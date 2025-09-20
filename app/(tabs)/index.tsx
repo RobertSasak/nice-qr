@@ -6,16 +6,68 @@ import {
   Text,
   TextInput,
   View,
+  Image,
+  StyleSheet,
 } from 'react-native'
+import { generateQRCode } from '../../utils/qrGenerator'
 
 export default function HomeScreen() {
   const [url, setUrl] = useState('')
   const [description, setDescription] = useState('')
-  const [showQR, setShowQR] = useState(false)
+  const [qrData, setQrData] = useState<{ size: number; matrix: number[][] } | null>(null)
 
   const handleGenerate = () => {
-    // Retrieve the URL from state
-    console.log('Generated URL:', url)
+    // Generate QR code using our utility function
+    const result = generateQRCode(url)
+
+    if (result.generated) {
+      console.log('QR code generated successfully!')
+      console.log('Size:', result.size)
+      console.log('Matrix preview:', result.matrix.slice(0, 5).map(row => row.slice(0, 5)))
+
+      setQrData({
+        size: result.size,
+        matrix: result.matrix
+      })
+    } else {
+      console.log('Failed to generate QR code')
+      setQrData(null)
+    }
+  }
+
+  // Function to create QR code component from matrix
+  const renderQRCode = () => {
+    if (!qrData) return null
+
+    const { size, matrix } = qrData
+    const pixelSize = 8 // Size of each QR module in pixels
+    const qrSize = size * pixelSize
+
+    return (
+      <View style={styles.qrContainer}>
+        <Text style={styles.qrTitle}>Generated QR Code</Text>
+        <View style={[styles.qrCode, { width: qrSize, height: qrSize }]}>
+          {matrix.map((row, y) => (
+            <View key={y} style={styles.qrRow}>
+              {row.map((cell, x) => (
+                <View
+                  key={`${y}-${x}`}
+                  style={[
+                    styles.qrPixel,
+                    {
+                      width: pixelSize,
+                      height: pixelSize,
+                      backgroundColor: cell === 1 ? 'black' : 'white',
+                    },
+                  ]}
+                />
+              ))}
+            </View>
+          ))}
+        </View>
+        <Text style={styles.qrInfo}>Size: {size}x{size} modules</Text>
+      </View>
+    )
   }
 
   return (
@@ -70,7 +122,40 @@ export default function HomeScreen() {
           onPress={handleGenerate}
           disabled={!url}
         />
+
+        {renderQRCode()}
       </View>
     </KeyboardAvoidingView>
   )
 }
+
+const styles = StyleSheet.create({
+  qrContainer: {
+    alignItems: 'center',
+    marginTop: 24,
+    padding: 16,
+    backgroundColor: '#f5f5f5',
+    borderRadius: 8,
+  },
+  qrTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 12,
+  },
+  qrCode: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    backgroundColor: 'white',
+  },
+  qrRow: {
+    flexDirection: 'row',
+  },
+  qrPixel: {
+    borderWidth: 0,
+  },
+  qrInfo: {
+    marginTop: 8,
+    fontSize: 14,
+    color: '#666',
+  },
+})
