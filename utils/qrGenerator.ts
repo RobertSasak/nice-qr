@@ -1,18 +1,37 @@
-export function generateQRCode(url: string) {
-  // First-party QR code generation function
-  // This is a placeholder - implement actual QR generation logic here
+import { encode, Level } from './js-qr/index.js'
 
+export interface QRCodeResult {
+  data: string
+  size: number
+  matrix: number[][]
+  generated: boolean
+}
+
+export function generateQRCode(url: string): QRCodeResult {
+  // First-party QR code generation function
   console.log('Generating QR code for URL:', url)
 
-  // TODO: Implement QR code generation algorithm
-  // This could include:
-  // - QR code data encoding
-  // - Matrix generation
-  // - SVG or canvas rendering
+  try {
+    // Generate QR code using our JavaScript implementation
+    const qr = encode(url, Level.L)
 
-  return {
-    data: url,
-    generated: true
+    // Get the matrix representation
+    const matrix = qr.toMatrix()
+
+    return {
+      data: url,
+      size: qr.size,
+      matrix,
+      generated: true
+    }
+  } catch (error) {
+    console.error('Error generating QR code:', error)
+    return {
+      data: url,
+      size: 0,
+      matrix: [],
+      generated: false
+    }
   }
 }
 

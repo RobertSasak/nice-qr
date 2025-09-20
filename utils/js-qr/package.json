@@ -1,0 +1,23 @@
+{
+  "name": "js-qr-generator",
+  "version": "1.0.0",
+  "description": "Pure JavaScript QR code generator, ported from rsc.io/qr",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "node test.js"
+  },
+  "keywords": [
+    "qr",
+    "qrcode",
+    "generator",
+    "javascript",
+    "reed-solomon",
+    "gf256"
+  ],
+  "author": "Ported from rsc.io/qr by Russ Cox",
+  "license": "BSD-3-Clause",
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}
