@@ -21,6 +21,45 @@ export default function HomeScreen() {
   } | null>(null)
 
   useEffect(() => {
+    const originalAddEventListener = Element.prototype.addEventListener
+
+    Element.prototype.addEventListener = function (
+      eventName: string,
+      handler: any
+    ) {
+      if (this.id !== 'upload-input') {
+        originalAddEventListener.apply(this, arguments)
+      }
+      console.log(`Mocking event listener for ${this.id}`)
+      originalAddEventListener.apply(this, [
+        eventName,
+        (...a) => {
+          console.log('File input change event triggered', a)
+          // Return a mock image file object
+          const mockFile = new File([
+            new Uint8Array([
+              0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, // PNG header
+              0x00, 0x00, 0x00, 0x0d, 0x49, 0x48, 0x44, 0x52, // IHDR chunk
+              0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, // 1x1 px
+              0x08, 0x06, 0x00, 0x00, 0x00, 0x1f, 0x15, 0xc4, 0x89, // RGBA
+              0x00, 0x00, 0x00, 0x0a, 0x49, 0x44, 0x41, 0x54, // IDAT chunk
+              0x08, 0xd7, 0x63, 0x60, 0x00, 0x00, 0x00, 0x02, 0x00, 0x01, // minimal data
+              0xe2, 0x26, 0x05, 0x9b, 0x00, 0x00, 0x00, 0x00, 0x49, 0x45, 0x4e, 0x44, 0xae, 0x42, 0x60, 0x82 // IEND
+            ])
+          ], 'mock.png', { type: 'image/png' })
+          const mockEvent = {
+            ...a[0],
+            target: {
+              ...a[0]?.target,
+              files: [mockFile],
+            },
+          }
+          handler.call(this, mockEvent)
+          return
+        },
+      ])
+    }
+
     const go = new (window as any).Go()
     fetch('/main.wasm')
       .then((res) => res.arrayBuffer())
@@ -217,9 +256,9 @@ export default function HomeScreen() {
                                   <img
                                     id="img-src"
                                     src="data:image/png;base64,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"
-                                  />
+                  />
                                 </td>
-                                <td>
+                        <td>
                                   <a id="right">
                                     <img
                                       id="arrow-right"
@@ -258,15 +297,15 @@ export default function HomeScreen() {
                                 <td>QR Size</td>
                                 <td>
                                   <a id="bigger">
-                                    <img
+                                  <img
                                       id="arrow-bigger"
                                       src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAAeElEQVR4nKzRTQ6FMAgEYB55B/NovZonqzHxB+nURGbYFBb9MqVuZt2E5ccpQz30EtTTTKMZpNELbK1L0EdCBTo8mUXRDikUggz6v9v1S5BpvSRc4vijwCoGQQYbQBY7L6EfLGE22WEZQyCFZZDGIijB9toCAAD//13hGuTGSOFBAAAAAElFTkSuQmCC"
                                     />
-                                  </a>
+              </a>
                                 </td>
                               </tr>
-                              <tr>
-                                <td>
+                      <tr>
+                        <td>
                                   <a id="ismaller">
                                     <img
                                       id="arrow-ismaller"
@@ -287,7 +326,7 @@ export default function HomeScreen() {
                             </tbody>
                           </table>
                         </td>
-                        <td>
+                                <td>
                           <label htmlFor="rand">
                             <input type="checkbox" id="rand" /> Random Pixels
                           </label>
