@@ -16,6 +16,11 @@ export default function HomeScreen() {
   const [description, setDescription] = useState('')
   const [showQR, setShowQR] = useState(false)
 
+  const handleGenerate = () => {
+    // Retrieve the URL from state
+    console.log('Generated URL:', url)
+  }
+
   return (
     <KeyboardAvoidingView
       style={{ flex: 1, justifyContent: 'center', padding: 24 }}
@@ -68,7 +73,7 @@ export default function HomeScreen() {
           />
           <Button
             title="Generate QR Code"
-            onPress={() => setShowQR(true)}
+            onPress={handleGenerate}
             disabled={!url}
           />
         </View>
