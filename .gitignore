@@ -41,3 +41,29 @@ app-example
 # generated native folders
 /ios
 /android
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Python virtual environment
+.env
+
+# Generated images
+*.png
+*.jpg
+*.jpeg
+
+# API keys and secrets
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local

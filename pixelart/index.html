@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pixel Art Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        .input-section {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        #promptInput {
+            width: 300px;
+            padding: 12px;
+            font-size: 16px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            margin-right: 10px;
+        }
+
+        #generateBtn {
+            padding: 12px 24px;
+            font-size: 16px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        #generateBtn:hover {
+            background-color: #0056b3;
+        }
+
+        #generateBtn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .loading {
+            text-align: center;
+            margin: 20px 0;
+            color: #666;
+        }
+
+        .error {
+            text-align: center;
+            color: #dc3545;
+            margin: 20px 0;
+            padding: 10px;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            border-radius: 5px;
+        }
+
+        .images-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-top: 30px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .image-container {
+            text-align: center;
+        }
+
+        .image-container img {
+            width: 64px;
+            height: 64px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            image-rendering: pixelated;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: crisp-edges;
+        }
+
+        .image-container p {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 Pixel Art Generator</h1>
+
+        <div class="input-section">
+            <input type="text" id="promptInput" placeholder="Enter what you want to generate..." value="cat">
+            <button id="generateBtn">Generate Pixel Art</button>
+        </div>
+
+        <div id="loading" class="loading hidden">
+            <p>Generating pixel art... This may take a few seconds.</p>
+        </div>
+
+        <div id="error" class="error hidden"></div>
+
+        <div id="imagesContainer" class="images-grid"></div>
+    </div>
+
+    <script>
+        const promptInput = document.getElementById('promptInput');
+        const generateBtn = document.getElementById('generateBtn');
+        const loading = document.getElementById('loading');
+        const error = document.getElementById('error');
+        const imagesContainer = document.getElementById('imagesContainer');
+
+        generateBtn.addEventListener('click', generatePixelArt);
+        promptInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                generatePixelArt();
+            }
+        });
+
+        async function generatePixelArt() {
+            const prompt = promptInput.value.trim();
+
+            if (!prompt) {
+                showError('Please enter a prompt');
+                return;
+            }
+
+            setLoading(true);
+            hideError();
+            clearImages();
+
+            try {
+                const response = await fetch('/generate-pixel-art', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ prompt: prompt })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                displayImages(data.images);
+
+            } catch (err) {
+                showError(`Error: ${err.message}`);
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        function setLoading(isLoading) {
+            generateBtn.disabled = isLoading;
+            loading.classList.toggle('hidden', !isLoading);
+        }
+
+        function showError(message) {
+            error.textContent = message;
+            error.classList.remove('hidden');
+        }
+
+        function hideError() {
+            error.classList.add('hidden');
+        }
+
+        function clearImages() {
+            imagesContainer.innerHTML = '';
+        }
+
+        function displayImages(images) {
+            imagesContainer.innerHTML = '';
+
+            images.forEach((imageData, index) => {
+                const container = document.createElement('div');
+                container.className = 'image-container';
+
+                const img = document.createElement('img');
+                img.src = imageData;
+                img.alt = `Pixel art variation ${index + 1}`;
+
+                const label = document.createElement('p');
+                label.textContent = `Variation ${index + 1}`;
+
+                container.appendChild(img);
+                container.appendChild(label);
+                imagesContainer.appendChild(container);
+            });
+        }
+    </script>
+</body>
+</html>
