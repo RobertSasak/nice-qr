@@ -1,13 +1,10 @@
 import React, { useState } from 'react'
 import {
   Button,
-  Keyboard,
   KeyboardAvoidingView,
   Platform,
-  StyleSheet,
   Text,
   TextInput,
-  TouchableWithoutFeedback,
   View,
 } from 'react-native'
 
@@ -26,60 +23,54 @@ export default function HomeScreen() {
       style={{ flex: 1, justifyContent: 'center', padding: 24 }}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <View style={{ flex: 1, justifyContent: 'center' }}>
-          <Text
-            style={{
-              fontSize: 28,
-              fontWeight: 'bold',
-              marginBottom: 24,
-              textAlign: 'center',
-            }}
-          >
-            QR code generator
-          </Text>
-          <Text style={{ fontSize: 16, marginBottom: 8 }}>URL</Text>
-          <TextInput
-            style={{
-              borderWidth: 1,
-              borderColor: '#ccc',
-              borderRadius: 8,
-              padding: 12,
-              marginBottom: 16,
-            }}
-            placeholder="Enter URL"
-            value={url}
-            onChangeText={setUrl}
-            autoCapitalize="none"
-            keyboardType="url"
-            autoCorrect={false}
-          />
-          <Text style={{ fontSize: 16, marginBottom: 8 }}>
-            Image Description
-          </Text>
-          <TextInput
-            style={{
-              borderWidth: 1,
-              borderColor: '#ccc',
-              borderRadius: 8,
-              padding: 12,
-              marginBottom: 24,
-              height: 80,
-            }}
-            placeholder="Describe the image (for accessibility or AI)"
-            value={description}
-            onChangeText={setDescription}
-            multiline
-          />
-          <Button
-            title="Generate QR Code"
-            onPress={handleGenerate}
-            disabled={!url}
-          />
-        </View>
-      </TouchableWithoutFeedback>
+      <View style={{ flex: 1, justifyContent: 'center' }}>
+        <Text
+          style={{
+            fontSize: 28,
+            fontWeight: 'bold',
+            marginBottom: 24,
+            textAlign: 'center',
+          }}
+        >
+          QR code generator
+        </Text>
+        <Text style={{ fontSize: 16, marginBottom: 8 }}>URL</Text>
+        <TextInput
+          style={{
+            borderWidth: 1,
+            borderColor: '#ccc',
+            borderRadius: 8,
+            padding: 12,
+            marginBottom: 16,
+          }}
+          placeholder="Enter URL"
+          value={url}
+          onChangeText={setUrl}
+          autoCapitalize="none"
+          keyboardType="url"
+          autoCorrect={false}
+        />
+        <Text style={{ fontSize: 16, marginBottom: 8 }}>Image Description</Text>
+        <TextInput
+          style={{
+            borderWidth: 1,
+            borderColor: '#ccc',
+            borderRadius: 8,
+            padding: 12,
+            marginBottom: 24,
+            height: 80,
+          }}
+          placeholder="Describe the image (for accessibility or AI)"
+          value={description}
+          onChangeText={setDescription}
+          multiline
+        />
+        <Button
+          title="Generate QR Code"
+          onPress={handleGenerate}
+          disabled={!url}
+        />
+      </View>
     </KeyboardAvoidingView>
   )
 }
-
-const styles = StyleSheet.create({})
